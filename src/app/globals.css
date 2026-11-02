@@ -1,0 +1,278 @@
+@import "tailwindcss";
+
+/* Design tokens (BUILD-BRIEF §5). Also exposed as Tailwind colors: bg-ground, text-muted, … */
+@theme {
+  --color-ground: #04080f;
+  --color-panel: #0a1424;
+  --color-panel-2: #070d18;
+  --color-line: #16243a;
+  --color-line-panel: #1c2e4a;
+  --color-line-input: #23395a;
+  --color-media: #08111f;
+  --color-text: #e8eef7;
+  --color-text-2: #b7c4d8;
+  --color-text-3: #a9b8ce;
+  --color-nav: #c9d6e8;
+  --color-muted: #7f93b3;
+  --color-dim: #6f86a8;
+  --color-blue: #007de9;
+  --color-blue-text: #4da3ff;
+  --color-blue-hover: #8cc4ff;
+  --color-blue-fill: #0069c7;
+  --color-todo: #8fb8e8;
+
+  --font-display: var(--font-archivo), system-ui, sans-serif;
+  --font-body: var(--font-archivo), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+@layer base {
+html {
+  background: var(--color-ground);
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--color-ground);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: var(--color-blue-text);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-blue-hover);
+}
+:focus-visible {
+  outline: 2px solid var(--color-blue-text);
+  outline-offset: 3px;
+}
+::selection {
+  background: var(--color-blue-fill);
+  color: #fff;
+}
+}
+
+@layer components {
+  .wrap {
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 40px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .narrow {
+    max-width: 760px;
+    margin-inline: auto;
+    padding-inline: 40px;
+    box-sizing: content-box;
+  }
+  @media (max-width: 700px) {
+    .wrap,
+    .narrow {
+      padding-inline: 20px;
+    }
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 12px;
+  }
+  .disp {
+    font-family: var(--font-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+  }
+  /* Offset shadow from the LinkedIn banner. Use sparingly. */
+  .shadow-offset {
+    text-shadow: 5px 5px 0 var(--color-blue-fill);
+  }
+
+  /* Hatched media placeholder */
+  .ph {
+    background-color: var(--color-media);
+    background-image: repeating-linear-gradient(135deg, transparent 0 14px, rgba(77, 163, 255, 0.05) 14px 15px);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #7489aa;
+    border: 1px solid var(--color-line);
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  /* Viewfinder corner brackets */
+  .vf-c {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 0 solid var(--color-blue-text);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .vf-tl { top: 14px; left: 14px; border-top-width: 2px; border-left-width: 2px; }
+  .vf-tr { top: 14px; right: 14px; border-top-width: 2px; border-right-width: 2px; }
+  .vf-bl { bottom: 14px; left: 14px; border-bottom-width: 2px; border-left-width: 2px; }
+  .vf-br { bottom: 14px; right: 14px; border-bottom-width: 2px; border-right-width: 2px; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--color-line-input);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-nav);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+  .chip:hover {
+    border-color: var(--color-blue-text);
+    color: #fff;
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--color-blue-fill);
+    border-color: var(--color-blue-fill);
+    color: #fff;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 0 26px;
+    background: var(--color-blue-fill);
+    color: #fff;
+    border: 0;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+  .btn:hover {
+    background: #0a5fb0;
+    color: #fff;
+  }
+
+  .card { color: var(--color-text); }
+  .card:hover { color: #fff; }
+  .card:hover .ph { border-color: var(--color-blue); }
+
+  .row { color: var(--color-text); }
+  .row:hover { color: #fff; background: var(--color-panel); }
+  .row:hover .ph { border-color: var(--color-blue); }
+  .row .arrow { color: #3b5578; transition: transform 0.15s, color 0.15s; }
+  .row:hover .arrow { color: var(--color-blue-text); transform: translateX(6px); }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #9fb2ce;
+    border: 1px solid #1e3150;
+    padding: 5px 9px;
+  }
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #9fb2ce;
+    border: 1px solid #2a3f60;
+    padding: 4px 8px;
+    white-space: nowrap;
+  }
+  .badge-wip {
+    color: var(--color-blue-hover);
+    border-color: #2e5a92;
+  }
+
+  /* Project page prose */
+  .sec-label {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-blue-text);
+    font-weight: 500;
+  }
+  .prose-body {
+    color: var(--color-text-2);
+    font-size: 19px;
+    line-height: 1.65;
+  }
+  .prose-body > * { margin: 0; }
+  .prose-body > * + * { margin-top: 1em; }
+  .prose-body ul, .prose-body ol { padding-left: 1.25em; }
+  .prose-body li + li { margin-top: 0.4em; }
+  .prose-body strong { color: var(--color-text); }
+  .prose-body h3 {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    font-weight: 500;
+    margin-top: 2em;
+  }
+  .prose-body code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--color-panel);
+    padding: 2px 5px;
+  }
+  .prose-intro {
+    font-size: 22px;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+  /* A bracketed prompt still waiting on Nevan: "[What broke, and how you fixed it]" */
+  .todo {
+    border: 1px dashed #2e5a92;
+    padding: 14px 16px;
+    color: var(--color-todo);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .strip {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+    scroll-snap-type: x mandatory;
+    scrollbar-color: var(--color-line-input) transparent;
+  }
+  .strip > * { scroll-snap-align: start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
