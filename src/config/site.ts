@@ -78,4 +78,5 @@ export const searchSynonyms: string[][] = [
   ["sound", "audio", "sound design"],
   ["shooting", "cinematography", "camera"],
   ["rendering", "render", "renders", "rendered"],
+  ["simulation", "simulations", "sim", "sims"],
 ];
