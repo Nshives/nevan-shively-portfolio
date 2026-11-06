@@ -168,41 +168,8 @@ const DISCIPLINE = {
   color: ["Color"],
 };
 
-// Search-only keywords (never shown), all taken from what each project's approved text already says.
-const GROUP_TAGS = {
-  comp: ["compositing", "VFX", "live plates"],
-  code: ["code", "programming"],
-  film: ["film", "editing", "video"],
-  motion: ["motion graphics", "animation"],
-  "3d": ["3D"],
-};
-const TAGS = {
-  "maya-tools": ["tools", "scripts", "automation", "modeling"],
-  "cafe-props": ["modeling", "UVs", "texturing", "props", "real-time", "environment"],
-  "organic-objects": ["sculpting", "modeling", "retopology", "texturing"],
-  "comp-ferris": ["still composite"],
-  "comp-manual-roto": ["roto", "rotoscoping"],
-  "comp-ai-roto": ["roto", "machine learning"],
-  "comp-plane": ["tracking", "keying"],
-  "comp-battiger": ["tracking", "roto", "keying"],
-  "animation-challenge": ["animation", "short film", "sound design"],
-  "coffee-maker": ["hardware", "maker", "microcontroller", "electronics", "prototype", "CAD", "3D printing", "Arduino"],
-  "song-of-orpheus": ["game", "gameplay", "rhythm game", "mechanics", "timing", "UI"],
-  "fifty-two": ["game", "gameplay", "UI", "interactive", "card game"],
-  "programmed-patterns": ["generative", "patterns"],
-  "self-portrait": ["image processing"],
-  "benthic-zone": ["game", "gameplay", "mechanics", "side-scroller", "team"],
-  "geo-nodes": ["procedural", "geometry nodes"],
-  "artist-statement": ["shooting", "sound design", "compositing"],
-  "foundations-anim": ["expressions"],
-  "movie-intros": ["titles", "3D", "rigging"],
-  "hunger-games": ["shooting", "titles", "VFX", "compositing"],
-  trickshot: ["VFX", "compositing", "masking"],
-  "forty-eight": ["short film", "compositing"],
-  aliens: ["VFX", "shooting"],
-  "auction-video": ["3D"],
-};
-const tagsFor = (p) => [...new Set([...(GROUP_TAGS[p.group] ?? []), ...(TAGS[p.slug] ?? [])])];
+// Search-only keywords. Drawn from each project's approved text and tools; shown only in "Matched".
+const TAGS = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, "search-tags.json"), "utf8"));
 
 const clean = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null && v !== ""));
 const url = (slug, key, ext) => `/media/${slug}/${key}.${ext}`;
@@ -262,7 +229,7 @@ async function runMdx() {
       role: p.role,
       tools: p.tools ? p.tools.split(" · ") : undefined,
       discipline: DISCIPLINE[p.group],
-      tags: tagsFor(p),
+      tags: TAGS[p.slug] ?? [],
       aiLabel: p.aiLabel ?? undefined,
       description: p.description,
       hero: await hero(p),

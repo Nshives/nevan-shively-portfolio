@@ -58,30 +58,25 @@ export function tokens(s: string) {
     .map(stem);
 }
 
-// Map every synonym (and its tokens) to a canonical key.
+// Every synonym mapped to its group's key, longest phrase first.
 function buildSynonyms(groups: string[][]) {
-  const map = new Map<string, string>();
-  for (const g of groups) {
-    const canon = g[0];
-    for (const term of g) map.set(normalize(term).trim(), canon);
-  }
-  return map;
+  const pairs: [string, string][] = [];
+  for (const g of groups) for (const term of g) pairs.push([normalize(term).trim(), g[0]]);
+  return new Map(pairs.sort((a, b) => b[0].length - a[0].length));
 }
 
-// Expand text into a set of searchable keys: stemmed tokens + canonical synonyms.
+// Expand text into a set of searchable keys. Phrases are taken out as they match,
+// so "After Effects" doesn't also count as "effects", or "Hunger Games" as "games".
 function keysOf(text: string, syn: Map<string, string>) {
-  const keys = new Set(tokens(text));
-  const n = normalize(text);
+  const keys = new Set<string>();
+  let n = normalize(text);
   for (const [term, canon] of syn) {
-    if (!n.includes(` ${term} `)) continue;
+    const phrase = ` ${term} `;
+    if (!n.includes(phrase)) continue;
     keys.add(`=${canon}`);
-    // "real time" counts once, as =realtime, not again as "real" and "time".
-    if (/[\s-]/.test(term)) for (const t of tokens(term)) keys.delete(t);
+    while (n.includes(phrase)) n = n.replace(phrase, " ");
   }
-  for (const k of [...keys]) {
-    const canon = syn.get(k);
-    if (canon) keys.add(`=${canon}`);
-  }
+  for (const t of tokens(n)) keys.add(syn.has(t) ? `=${syn.get(t)}` : t);
   return keys;
 }
 
@@ -91,16 +86,24 @@ export function searchIndex(
   synonyms: string[][] = [],
 ): SearchHit[] {
   const syn = buildSynonyms(synonyms);
+  const cache = new Map<string, Set<string>>();
+  const keysFor = (text: string) => {
+    let keys = cache.get(text);
+    if (!keys) cache.set(text, (keys = keysOf(text, syn)));
+    return keys;
+  };
+  // Each tag or tool is its own phrase, so words never run across two of them.
+  const keysOfList = (list: string[]) => new Set(list.flatMap((t) => [...keysFor(t)]));
 
   // Pre-compute field keys per entry.
   const fields = index.map((e) => {
     const f: Record<Field, Set<string>> = {
-      title: keysOf(e.title, syn),
-      tags: keysOf(e.tags.join(" , "), syn),
-      tools: keysOf(e.tools.join(" , "), syn),
-      discipline: keysOf(e.discipline.join(" , "), syn),
-      role: keysOf(e.role, syn),
-      body: keysOf(e.body, syn),
+      title: keysFor(e.title),
+      tags: keysOfList(e.tags),
+      tools: keysOfList(e.tools),
+      discipline: keysOfList(e.discipline),
+      role: keysFor(e.role),
+      body: keysFor(e.body),
     };
     return f;
   });
@@ -109,12 +112,10 @@ export function searchIndex(
   // pasted job description work without its filler dragging every score down.
   const vocab = new Set<string>();
   for (const f of fields) for (const set of Object.values(f)) for (const k of set) vocab.add(k);
-  const qKeys = [...keysOf(query, syn)].filter((k) => vocab.has(k));
-  // A synonym key already covers its plain token, so don't double count.
+  const effective = [...keysOf(query, syn)].filter((k) => vocab.has(k));
   // Stems read badly in "why it matched", so remember the words as typed.
   const asTyped = new Map<string, string>();
   for (const w of normalize(query).split(/[\s-]+/)) if (w) asTyped.set(stem(w), w);
-  const effective = qKeys.filter((k) => k.startsWith("=") || !qKeys.includes(`=${syn.get(k) ?? ""}`));
   if (!effective.length) return [];
 
   // Five strong matches count as a perfect fit, so a long pasted posting can still score high.
@@ -122,7 +123,7 @@ export function searchIndex(
 
   // Display labels for "why it matched": tags/tools/discipline whose keys hit.
   const labelFor = (e: IndexEntry, k: string) =>
-    [...e.tags, ...e.tools, ...e.discipline].find((t) => keysOf(t, syn).has(k));
+    [...e.tags, ...e.tools, ...e.discipline].find((t) => keysFor(t).has(k));
 
   const hits: SearchHit[] = [];
   index.forEach((entry, i) => {

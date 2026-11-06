@@ -49,7 +49,8 @@ File: `content/projects/<slug>.mdx`. Everything is frontmatter; nothing goes bel
 | `meta` | | archive row's mono line. Defaults to the tools |
 | `archiveOrder` | | position inside a term in the archive |
 | `thumb`, `thumbPos` | | card picture and CSS crop like `center 35%`. Defaults to the hero, then the first image or video in the blocks |
-| `discipline`, `tags`, `searchText` | | extra search words, never shown |
+| `tags` | | 8–15 search keywords: skills, techniques, kinds of work. Count the most in search and show only in a result's "Matched" line, so each must be something you could defend |
+| `discipline`, `searchText` | | extra search words. `searchText` is never shown |
 | `course` | | internal only, never shown |
 
 ### Blocks
@@ -99,7 +100,7 @@ If unknown, leave the field out and ask Nevan. Never guess.
 | Email, GitHub, résumé, social links | `src/config/site.ts` → `links` (empty = shows a `[PLACEHOLDER]`) |
 | Reel video | `src/config/site.ts` → `reel`. To replace it: `npm run media -- reel <file> --max-mb=75`, keeping the same name or updating `reel` |
 | Suggested search chips | `src/config/site.ts` → `searchChips` |
-| Search synonyms (UE5 = Unreal …) | `src/config/site.ts` → `searchSynonyms` |
+| Search synonyms (UE5 = Unreal, compositor = compositing …) | `src/config/site.ts` → `searchSynonyms` |
 | Portrait | `public/media/about/portrait.jpg` |
 | Résumé | `public/files/nevan-shively-resume.pdf` (replace the file to update it) |
 | Logo | `public/logo-mark-nav.svg`, favicon `src/app/icon.svg` |
