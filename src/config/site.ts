@@ -13,13 +13,12 @@ export const site = {
 export type SocialLink = { label: string; href: string; placeholder: string };
 
 export const links: Record<"email" | "linkedin" | "github" | "instagram" | "youtube" | "resume", SocialLink> = {
-  email: { label: "Email", href: "", placeholder: "[EMAIL]" },
+  email: { label: "Email", href: "nevanshively06@gmail.com", placeholder: "[EMAIL]" },
   linkedin: { label: "LinkedIn", href: "https://www.linkedin.com/in/nevanshively/", placeholder: "[LINKEDIN]" },
-  github: { label: "GitHub", href: "", placeholder: "[GITHUB URL]" },
+  github: { label: "GitHub", href: "https://github.com/Nshives", placeholder: "[GITHUB URL]" },
   instagram: { label: "Instagram", href: "https://www.instagram.com/ngs.creative/", placeholder: "[INSTAGRAM]" },
   youtube: { label: "YouTube", href: "https://www.youtube.com/@ngs.creative", placeholder: "[YOUTUBE]" },
-  // Drop the PDF at public/files/nevan-shively-resume.pdf, then set href to "/files/nevan-shively-resume.pdf".
-  resume: { label: "Résumé", href: "", placeholder: "[RÉSUMÉ PDF]" },
+  resume: { label: "Résumé", href: "/files/nevan-shively-resume.pdf", placeholder: "[RÉSUMÉ PDF]" },
 };
 
 // Home reel. Leave src empty until the reel is cut: the home page then plays the

@@ -60,11 +60,11 @@ export function FullImage({ m }: { m: Extract<Block, { type: "image" }> }) {
 }
 
 // Thumbnail for cards and rows. No image yet gets a dashed frame.
-export function Thumb({ src, position, aspect, sizes, label, className = "", style }: { src?: string; position?: string; aspect: string; sizes: string; label: string; className?: string; style?: React.CSSProperties }) {
+export function Thumb({ src, alt = "", position, aspect, sizes, label, className = "", style }: { src?: string; alt?: string; position?: string; aspect: string; sizes: string; label: string; className?: string; style?: React.CSSProperties }) {
   return (
     <div className={`ph ${src ? "" : "!border-dashed !border-[#2E5A92]"} ${className}`} style={{ aspectRatio: aspect, ...style }}>
       {src ? (
-        <Image src={src} alt="" fill sizes={sizes} className="object-cover" style={{ objectPosition: position ?? "center" }} />
+        <Image src={src} alt={alt} fill sizes={sizes} className="object-cover" style={{ objectPosition: position ?? "center" }} />
       ) : (
         <span className="mono text-[10px] px-3 text-todo">{label}</span>
       )}

@@ -100,7 +100,8 @@ If unknown, leave the field out and ask Nevan. Never guess.
 | Reel video | `src/config/site.ts` → `reel` (empty = first featured project with a video, as a silent loop) |
 | Suggested search chips | `src/config/site.ts` → `searchChips` |
 | Search synonyms (UE5 = Unreal …) | `src/config/site.ts` → `searchSynonyms` |
-| Portrait | `src/app/about/page.tsx` → `portrait` |
+| Portrait | `public/media/about/portrait.jpg` |
+| Résumé | `public/files/nevan-shively-resume.pdf` (replace the file to update it) |
 | Logo | `public/logo-mark-nav.svg`, favicon `src/app/icon.svg` |
 | Colors and type | `src/app/globals.css` (`@theme` tokens) |
 | Fonts (Encamp swap) | `src/app/layout.tsx` |
