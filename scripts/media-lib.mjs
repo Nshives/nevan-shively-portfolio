@@ -21,14 +21,16 @@ export async function optimizeImage(input, output) {
 
 // 1080p H.264 at up to 4 Mbps, faststart. Long pieces get whatever bitrate keeps
 // them under maxMB, dropping to 720p when that would be too low for 1080p.
-export function encodeVideo(input, output, { audio = true, maxMB = 38 } = {}) {
-  const { duration, hasAudio } = probe(input);
+// `clip` cuts a recording down: { start, end } in seconds and a { crop } ffmpeg filter.
+export function encodeVideo(input, output, { audio = true, maxMB = 38, clip } = {}) {
+  const { duration: full, hasAudio } = probe(input);
+  const duration = clip ? clip.end - clip.start : full;
   const keepAudio = audio && hasAudio;
   const audioK = keepAudio ? 128 : 0;
   const videoK = Math.min(4000, Math.floor((maxMB * 8000) / duration - audioK));
-  const vf = (videoK < 1500 ? fit(1280, 720) : fit(1920, 1080)) + ",format=yuv420p";
+  const vf = (clip?.crop ? `${clip.crop},fps=30,` : "") + (videoK < 1500 ? fit(1280, 720) : fit(1920, 1080)) + ",format=yuv420p";
   run("ffmpeg", [
-    "-y", "-loglevel", "error", "-i", input, "-vf", vf,
+    "-y", "-loglevel", "error", ...(clip ? ["-ss", String(clip.start), "-t", String(duration)] : []), "-i", input, "-vf", vf,
     "-c:v", "libx264", "-preset", "medium", "-crf", "22", "-maxrate", `${videoK}k`, "-bufsize", `${videoK * 2}k`,
     "-movflags", "+faststart",
     ...(keepAudio ? ["-c:a", "aac", "-b:a", `${audioK}k`] : ["-an"]),
@@ -37,6 +39,6 @@ export function encodeVideo(input, output, { audio = true, maxMB = 38 } = {}) {
 }
 
 // One frame as a PNG, for a poster or an image taken from a video.
-export function grabFrame(input, seconds, output) {
-  run("ffmpeg", ["-y", "-loglevel", "error", "-ss", String(seconds), "-i", input, "-frames:v", "1", "-vf", "format=rgb24", output]);
+export function grabFrame(input, seconds, output, crop) {
+  run("ffmpeg", ["-y", "-loglevel", "error", "-ss", String(seconds), "-i", input, "-frames:v", "1", "-vf", `${crop ? `${crop},` : ""}format=rgb24`, output]);
 }

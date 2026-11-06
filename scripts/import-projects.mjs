@@ -27,9 +27,19 @@ const auction = projects.find((p) => p.slug === "auction-video");
 auction.hero = { type: "video", key: "auction", source: "AuctionVideo/Auction Video Draft 3 copy.mp4" };
 // Nevan, 5 Nov 2026: made December 2024, before SCAD. Pre-SCAD work counts as foundational.
 Object.assign(auction, { term: "Before SCAD", date: "2024-12", foundational: true });
+auction.tools = "Blender · Premiere";
+projects.find((p) => p.slug === "sad-1").tools = "Graphite · Ink";
+projects.find((p) => p.slug === "sad-3").tools = "Ink pen";
+// Nevan: match the résumé.
+const coffee = projects.find((p) => p.slug === "coffee-maker");
+Object.assign(coffee, { tools: "Python · Onshape", aiLabel: "AI-assisted" });
+coffee.blocks[0].text = coffee.blocks[0].text.replace("to build the CAD model.", "to build the CAD model, which I then refined in Onshape.");
 
 // Files renamed since the export.
 const RENAMED = { "Aliens VFX/Draft 6.mp4": "Aliens VFX/Draft 6 Video Compression.mp4" };
+
+// Screen recordings of a video player: keep only the playback, cropped above the player's controls.
+const CLIPS = { trickshot: { start: 3.9, end: 15.25, crop: "crop=2268:1276:60:0" } };
 
 // Handoff §5: the Geometry Nodes and short compositing clips can be muted.
 const isMuted = (slug) => slug === "geo-nodes" || slug.startsWith("comp-");
@@ -119,14 +129,14 @@ async function runMedia(only) {
     const poster = `${base}.jpg`;
     if (!fs.existsSync(poster)) {
       const frame = path.join(TMP, `${v.slug}-${v.key}-poster.png`);
-      grabFrame(v.file, POSTER_AT[v.key] ?? probe(v.file).duration * 0.15, frame);
+      grabFrame(v.file, POSTER_AT[v.key] ?? probe(v.file).duration * 0.15, frame, CLIPS[v.key]?.crop);
       await optimizeImage(frame, poster);
     }
     if (fs.existsSync(`${base}.mp4`)) continue;
     const started = Date.now();
     // Write beside the target first so a stopped run never leaves a half-finished file.
     const part = path.join(TMP, `${v.slug}-${v.key}.mp4`);
-    encodeVideo(v.file, part, { audio: !isMuted(v.slug) });
+    encodeVideo(v.file, part, { audio: !isMuted(v.slug), clip: CLIPS[v.key] });
     fs.copyFileSync(part, `${base}.mp4`);
     fs.rmSync(part);
     console.log(`${v.slug}/${v.key}.mp4  ${(fs.statSync(`${base}.mp4`).size / 1e6).toFixed(1)} MB  ${Math.round((Date.now() - started) / 1000)}s`);
@@ -176,7 +186,7 @@ const TAGS = {
   "comp-plane": ["tracking", "keying"],
   "comp-battiger": ["tracking", "roto", "keying"],
   "animation-challenge": ["animation", "short film", "sound design"],
-  "coffee-maker": ["hardware", "maker", "microcontroller", "electronics", "prototype"],
+  "coffee-maker": ["hardware", "maker", "microcontroller", "electronics", "prototype", "CAD", "3D printing", "Arduino"],
   "song-of-orpheus": ["game", "gameplay", "rhythm game", "mechanics", "timing", "UI"],
   "fifty-two": ["game", "gameplay", "UI", "interactive", "card game"],
   "programmed-patterns": ["generative", "patterns"],
@@ -247,7 +257,7 @@ async function runMdx() {
       order: p.featuredOrder,
       group: p.group,
       archiveOrder: a?.order,
-      meta: a?.meta,
+      meta: p.slug === "coffee-maker" ? "Python · Onshape · personal" : a?.meta,
       thumbPos: a?.pos,
       role: p.role,
       tools: p.tools ? p.tools.split(" · ") : undefined,

@@ -10,7 +10,12 @@ const fail = (slug: string, what: string) => { bad++; console.log(`✗ ${slug}: 
 const files = (b: any): string[] => b.type === "grid" ? b.items.map((i: any) => i.src) : [b.src, b.poster].filter(Boolean);
 
 // Confirmed by Nevan after the export (same as import-projects.mjs).
-Object.assign(projects.find((p: any) => p.slug === "auction-video"), { term: "Before SCAD", date: "2024-12", foundational: true });
+Object.assign(projects.find((p: any) => p.slug === "auction-video"), { term: "Before SCAD", date: "2024-12", foundational: true, tools: "Blender · Premiere" });
+projects.find((p: any) => p.slug === "sad-1").tools = "Graphite · Ink";
+projects.find((p: any) => p.slug === "sad-3").tools = "Ink pen";
+const coffee = projects.find((p: any) => p.slug === "coffee-maker");
+Object.assign(coffee, { tools: "Python · Onshape", aiLabel: "AI-assisted" });
+coffee.blocks[0].text = coffee.blocks[0].text.replace("to build the CAD model.", "to build the CAD model, which I then refined in Onshape.");
 
 for (const p of projects) {
   const { data: d } = matter(fs.readFileSync(path.join(ROOT, "content", "projects", `${p.slug}.mdx`), "utf8"));
