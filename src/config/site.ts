@@ -6,8 +6,8 @@ export const site = {
   copyright: "© 2026 Nevan Shively Visuals",
   roleLine: "Visual Effects Artist | Game Developer",
   aboutLine: "Visual Effects Artist | Game Developer | SCAD ’29 · Savannah, GA",
-  // Set once the domain is chosen (see BUILD-BRIEF §8).
-  url: "",
+  // Change this if a custom domain is added.
+  url: "https://nevan-shively-portfolio.vercel.app",
 };
 
 export type SocialLink = { label: string; href: string; placeholder: string };

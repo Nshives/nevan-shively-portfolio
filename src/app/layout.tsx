@@ -13,7 +13,10 @@ const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500", "700"],
 export const metadata: Metadata = {
   title: { default: site.name, template: `%s · ${site.name}` },
   description: `${site.name}: ${site.roleLine}.`,
-  ...(site.url ? { metadataBase: new URL(site.url) } : {}),
+  metadataBase: new URL(site.url),
+  // The picture and text shown when the link is shared.
+  openGraph: { type: "website", siteName: site.name, title: site.name, description: `${site.name}: ${site.roleLine}.`, images: ["/media/reel/portreel.jpg"] },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
