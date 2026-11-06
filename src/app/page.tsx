@@ -1,36 +1,40 @@
 import Link from "next/link";
-import { getFeatured, loadProjects, plainText } from "@/lib/projects";
+import { getFeatured, loadProjects, searchableText } from "@/lib/projects";
+import { isTodo, termLabel } from "@/lib/schema";
 import type { IndexEntry } from "@/lib/search";
 import { reel } from "@/config/site";
 import { Reel } from "@/components/Reel";
 import { Search } from "@/components/Search";
-import { ProjectCard, thumbLabel, thumbSrc } from "@/components/Cards";
+import { ProjectCard, thumbSrc } from "@/components/Cards";
 
 // Search index, built at build time and shipped to the client with the page.
 function buildIndex(): IndexEntry[] {
-  return loadProjects().map((p) => ({
-    slug: p.slug,
-    title: p.title,
-    year: String(p.year),
-    discipline: p.discipline,
-    tags: p.tags,
-    tools: p.tools.filter((t) => !/^\[.*\]$/.test(t)),
-    role: p.role,
-    aiLabel: p.aiLabel,
-    tier: p.tier,
-    foundational: p.foundational,
-    thumb: thumbSrc(p),
-    thumbLabel: thumbLabel(p),
-    // Unwritten "[prompt]" paragraphs aren't content, so they're left out.
-    body: `${plainText(p.body.replace(/^\[.*\]$/gm, "").replace(/\[UNVERIFIED\]/g, ""))} ${p.searchText}`,
-  }));
+  return loadProjects().map((p) => {
+    const tools = p.tools.filter((t) => !isTodo(t));
+    return {
+      slug: p.slug,
+      title: p.title,
+      term: termLabel(p.term),
+      discipline: p.discipline,
+      tags: p.tags,
+      tools,
+      role: p.role ?? "",
+      // Search weight: featured work counts most, foundational least.
+      tier: p.featured ? 1 : p.foundational ? 3 : 2,
+      foundational: p.foundational,
+      thumb: thumbSrc(p),
+      thumbPos: p.thumbPos,
+      body: searchableText(p),
+    };
+  });
 }
 
-// Reel: the configured reel, else the first featured project with a video hero.
+// Reel: the configured reel, else the first featured project with a video, silent.
 function reelSource() {
-  if (reel.src) return { src: reel.src, webm: reel.webm || undefined, poster: reel.poster || undefined };
-  const p = getFeatured().find((f) => f.hero?.type === "video");
-  if (p?.hero?.type === "video") return { src: p.hero.src, webm: p.hero.webm, poster: p.hero.poster };
+  if (reel.src) return { src: reel.src, poster: reel.poster || undefined, silent: false };
+  for (const p of getFeatured()) {
+    if (p.hero?.type === "video") return { src: p.hero.src, poster: p.hero.poster, silent: true };
+  }
   return {};
 }
 

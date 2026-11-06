@@ -1,0 +1,81 @@
+---
+slug: fifty-two
+title: Fifty-Two
+term: Summer 2026
+date: 2026-07
+foundational: false
+featured: true
+order: 4
+group: code
+archiveOrder: 12
+meta: Processing · interactive menu
+role: Solo
+tools:
+  - Processing (Java)
+  - Premiere
+  - Photoshop
+discipline:
+  - Programming
+tags:
+  - code
+  - programming
+  - game
+  - gameplay
+  - UI
+  - interactive
+  - card game
+aiLabel: Built solo
+description: 'People edit themselves into fake video game menus. I wanted mine to actually run. Fifty-Two is a Processing sketch of a magician’s main menu: the buttons hover, the character reacts and recolors live, and there’s a card-guessing game behind Enter Game.'
+hero:
+  type: video
+  src: /media/fifty-two/fiftytwo.mp4
+  poster: /media/fifty-two/fiftytwo.jpg
+blocks:
+  - type: text
+    heading: Process
+    text: |-
+      Processing can’t play video, so every pose had to become a transparent GIF: shot on camera, keyed in Premiere, built frame by frame in Photoshop. I laid out the whole UI in Photoshop first and read each element’s coordinates straight off it.
+
+      Adding the game screen broke everything, so I restructured the app around one variable, curScreen. Draw, mouse and key input each switch on it, and the menu and the game never touch each other’s logic.
+  - type: grid
+    minColumnWidth: 520px
+    aspect: 16/9
+    fit: cover
+    items:
+      - type: image
+        src: /media/fifty-two/52-recolor.jpg
+        alt: 'Fifty-Two: Live recolor, blue'
+        width: 1920
+        height: 1080
+        caption: 'Live recolor, blue'
+      - type: image
+        src: /media/fifty-two/52-recolor2.jpg
+        alt: 'Fifty-Two: Live recolor, adjusting'
+        width: 1920
+        height: 1080
+        caption: 'Live recolor, adjusting'
+      - type: image
+        src: /media/fifty-two/52-game.jpg
+        alt: 'Fifty-Two: The card game'
+        width: 1920
+        height: 1080
+        caption: The card game
+      - type: image
+        src: /media/fifty-two/52-win.jpg
+        alt: 'Fifty-Two: A win'
+        width: 1920
+        height: 1080
+        caption: A win
+  - type: grid
+    minColumnWidth: 420px
+    aspect: 4/3
+    fit: contain
+    items:
+      - type: image
+        src: /media/fifty-two/fiftytwo-sketch.jpg
+        alt: 'Fifty-Two: The layout sketch I built from'
+        width: 2400
+        height: 1443
+        caption: The layout sketch I built from
+---
+

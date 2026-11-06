@@ -1,7 +1,5 @@
 // Content helpers. Run through npm:
 //   npm run content:check                 validate every project, list open todos
-//   npm run placeholders                  list placeholder projects
-//   npm run placeholders -- --remove      delete them (and their media folders)
 //   npm run new-project -- my-slug "My Title"
 import fs from "node:fs";
 import path from "node:path";
@@ -31,37 +29,30 @@ if (cmd === "check") {
       bad++;
       notes.push(`ERROR  slug "${r.data.slug}" must match the file name`);
     }
-    const raw = JSON.stringify(data) + "\n" + content;
-    const todos = [...new Set(raw.match(/\[[A-Z][A-Z0-9 ,'’.]+\]/g) ?? [])].filter((t) => t !== "[UNVERIFIED]");
-    const unverified = (content.match(/\[UNVERIFIED\]/g) ?? []).length;
-    const prompts = content.split("\n").filter((l) => /^\[.*\]$/.test(l.trim())).length;
-    const banned = BANNED.filter((w) => new RegExp(`\\b${w}\\b`, "i").test(content));
-    if (data.placeholder) notes.push("placeholder project");
+    // Only what's shown to visitors or still open: every string, minus file paths.
+    const strings: string[] = [];
+    const walk = (v: unknown) => {
+      if (typeof v === "string") { if (!v.startsWith("/")) strings.push(v); }
+      else if (v && typeof v === "object") Object.values(v).forEach(walk);
+    };
+    walk(data);
+    const written = strings.join("\n");
+    const todos = [...new Set(written.match(/\[[^\]\n]+\]/g) ?? [])].filter((t) => t !== "[UNVERIFIED]");
+    const unverified = (written.match(/\[UNVERIFIED\]/g) ?? []).length;
+    const banned = BANNED.filter((w) => new RegExp(`\\b${w}\\b`, "i").test(written));
+    if (content.trim()) notes.push("ERROR  body: all text goes in description or a text block, not below the frontmatter");
+    if (/highschool/i.test(written)) notes.push('voice  never use "Highschool"; use the date');
     if (todos.length) notes.push(`todo   ${todos.join(" ")}`);
-    if (prompts) notes.push(`todo   ${prompts} unwritten [prompt] paragraph(s)`);
     if (unverified) notes.push(`check  ${unverified} [UNVERIFIED] sentence(s) to confirm or cut`);
     if (banned.length) notes.push(`voice  banned word(s): ${banned.join(", ")}`);
-    console.log(`${notes.some((n) => n.startsWith("ERROR")) ? "✗" : "✓"} ${f}`);
+    const failed = notes.some((n) => n.startsWith("ERROR"));
+    if (failed && r.success && r.data.slug === f.replace(/\.mdx$/, "")) bad++;
+    console.log(`${failed ? "✗" : "✓"} ${f}`);
     for (const n of notes) console.log(`    ${n}`);
   }
   if (bad) {
     console.error(`\n${bad} file(s) invalid. The build will fail until they're fixed.`);
     process.exit(1);
-  }
-} else if (cmd === "placeholders") {
-  const ph = files().filter((f) => read(f).data.placeholder === true);
-  if (!ph.length) {
-    console.log("No placeholder projects.");
-  } else if (args.includes("--remove")) {
-    for (const f of ph) {
-      fs.rmSync(path.join(DIR, f));
-      const media = path.join(MEDIA, f.replace(/\.mdx$/, ""));
-      if (fs.existsSync(media)) fs.rmSync(media, { recursive: true });
-      console.log(`removed ${f}`);
-    }
-  } else {
-    for (const f of ph) console.log(`${f}  (${read(f).data.title})`);
-    console.log(`\n${ph.length} placeholder(s). Remove with: npm run placeholders -- --remove`);
   }
 } else if (cmd === "new") {
   const [slug, ...titleParts] = args;
@@ -75,16 +66,14 @@ if (cmd === "check") {
     console.error(`${slug}.mdx already exists`);
     process.exit(1);
   }
-  const now = new Date();
   const tpl = fs
     .readFileSync(path.join(DIR, "_template.mdx"), "utf8")
     .replace('"SLUG"', JSON.stringify(slug))
-    .replace('"TITLE"', JSON.stringify(title))
-    .replace('"YYYY-MM"', `"${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}"`);
+    .replace('"TITLE"', JSON.stringify(title));
   fs.writeFileSync(target, tpl);
   fs.mkdirSync(path.join(MEDIA, slug), { recursive: true });
   console.log(`created content/projects/${slug}.mdx and public/media/${slug}/`);
   console.log(`next: npm run media -- ${slug} <files…>`);
 } else {
-  console.log("commands: check | placeholders [--remove] | new <slug> <title>");
+  console.log("commands: check | new <slug> <title>");
 }

@@ -1,0 +1,82 @@
+---
+slug: maya-tools
+title: Maya Tools
+term: Fall 2026
+date: 2026-10
+foundational: false
+featured: false
+group: 3d
+archiveOrder: 1
+meta: Maya · Python · personal
+role: Solo · personal
+tools:
+  - Maya
+  - Python
+discipline:
+  - 3D
+tags:
+  - 3D
+  - tools
+  - scripts
+  - automation
+  - modeling
+aiLabel: AI-accelerated
+description: Two Python tools for Maya that I built with Claude to speed up my own modeling. Quad Cap rebuilds a cylinder’s n-gon caps as a clean quad grid in one click. Vine Tool grows vines along a curve.
+hero:
+  type: image
+  src: /media/maya-tools/maya-vine-pop.jpg
+  alt: Maya Tools
+  width: 1394
+  height: 1084
+  aspect: 16/9
+  fit: contain
+blocks:
+  - type: text
+    heading: Process
+    text: 'Both automate steps I was doing by hand. For Quad Cap: find the n-gon caps, build a grid with a quarter as many divisions per side as the cylinder has sides, snap its border to the rim, smooth the inside, merge. I designed what each tool should do and tested them on my own models; Claude wrote most of the code. I typed out the Vine Tool script myself, following Claude’s version.'
+  - type: subheading
+    text: Quad Cap
+  - type: grid
+    minColumnWidth: 340px
+    aspect: 4/3
+    fit: contain
+    items:
+      - type: image
+        src: /media/maya-tools/maya-cyl-base.jpg
+        alt: 'Maya Tools: Base cylinder'
+        width: 1394
+        height: 1084
+        caption: Base cylinder
+      - type: image
+        src: /media/maya-tools/maya-cyl-ngon.jpg
+        alt: 'Maya Tools: N-gon cap'
+        width: 1394
+        height: 1084
+        caption: N-gon cap
+      - type: image
+        src: /media/maya-tools/maya-cyl-after.jpg
+        alt: 'Maya Tools: After the script'
+        width: 1394
+        height: 1084
+        caption: After the script
+  - type: subheading
+    text: Vine Tool
+  - type: grid
+    minColumnWidth: 520px
+    aspect: 4/3
+    fit: contain
+    items:
+      - type: image
+        src: /media/maya-tools/maya-vine-curve.jpg
+        alt: 'Maya Tools: The input curve'
+        width: 1394
+        height: 1084
+        caption: The input curve
+      - type: image
+        src: /media/maya-tools/maya-vine-pop.jpg
+        alt: 'Maya Tools: Vines generated along it'
+        width: 1394
+        height: 1084
+        caption: Vines generated along it
+---
+

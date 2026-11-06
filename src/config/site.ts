@@ -22,24 +22,22 @@ export const links: Record<"email" | "linkedin" | "github" | "instagram" | "yout
   resume: { label: "Résumé", href: "", placeholder: "[RÉSUMÉ PDF]" },
 };
 
-// Home reel. Leave src empty to fall back to the hero clip of the first
-// featured project that has a video hero (and then to a hatched placeholder).
+// Home reel. Leave src empty until the reel is cut: the home page then plays the
+// first featured project with a video as a silent loop.
 export const reel = {
   src: "", // e.g. "/media/reel/reel.mp4"
-  webm: "", // optional "/media/reel/reel.webm"
   poster: "", // e.g. "/media/reel/reel.jpg"
   hudFile: "NSV_REEL_2026.MOV",
 };
 
-// Suggested searches under the search box. Placeholders until real work is in;
-// refine the labels and queries here and nothing else needs to change.
+// Suggested searches under the search box.
 export const searchChips: { label: string; query: string }[] = [
-  { label: "FX TD", query: "FX technical director intern: procedural effects, Houdini or Unreal Niagara, Python tooling." },
-  { label: "Gameplay programmer", query: "Gameplay programmer intern: prototyping mechanics, Blueprints or C++, working closely with designers." },
-  { label: "Pipeline / tools", query: "Pipeline TD: Python tools for artists, Maya and Nuke scripting, automating repetitive work." },
-  { label: "AI R&D", query: "R&D intern exploring machine learning tools for artists and content creation." },
-  { label: "Film", query: "Junior editor: shooting, cutting and sound for short films." },
-  { label: "3D", query: "3D generalist intern: modeling, lighting and rendering in Blender or Maya." },
+  { label: "3D / Maya", query: "3D artist intern: model, UV and texture props in Maya for real-time scenes." },
+  { label: "Compositing", query: "Junior compositor: keying, roto and integrating CG into live plates in Nuke." },
+  { label: "Tools / Python", query: "Pipeline or tools intern: write Python scripts that automate repetitive artist work in Maya." },
+  { label: "Gameplay programming", query: "Gameplay programmer intern: prototype mechanics, timing systems and UI in code." },
+  { label: "Motion / Film", query: "Motion designer or editor: animation, titles, shooting and cutting short films." },
+  { label: "Hardware / maker", query: "Creative technologist: build physical prototypes with microcontrollers, CAD and 3D printing." },
 ];
 
 // Words that mean the same thing to a recruiter. Each group is treated as one
@@ -55,6 +53,3 @@ export const searchSynonyms: string[][] = [
   ["tools", "tooling", "tool"],
   ["edit", "editing", "editor", "cutting"],
 ];
-
-// Archive: years before this are grouped under "Earlier".
-export const archiveEarlierBefore = 2025;

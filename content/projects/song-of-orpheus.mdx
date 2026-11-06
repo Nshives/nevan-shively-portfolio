@@ -1,0 +1,70 @@
+---
+slug: song-of-orpheus
+title: Song of Orpheus
+term: Summer 2026
+date: 2026-07
+foundational: false
+featured: true
+order: 3
+group: code
+archiveOrder: 11
+meta: Processing · rhythm game
+role: Solo
+tools:
+  - Processing (Java)
+  - Photoshop
+discipline:
+  - Programming
+tags:
+  - code
+  - programming
+  - game
+  - gameplay
+  - rhythm game
+  - mechanics
+  - timing
+  - UI
+aiLabel: AI-assisted
+description: 'A rhythm game where the music is the only thing keeping the underworld back. Orpheus sits in the middle of a ring of six lyre strings mapped to six keys, and monsters arrive from the dark on the beat. Hit the right string in time and they never reach you.'
+hero:
+  type: video
+  src: /media/song-of-orpheus/orpheus.mp4
+  poster: /media/song-of-orpheus/orpheus.jpg
+blocks:
+  - type: text
+    heading: Process
+    text: |-
+      My first idea mixed fighting waves of enemies with rowing sections. It was too much for the deadline, and I leaned on AI more than I wanted while trying to save it, so I pivoted to a version I could build myself. I built it in plain shapes first, a white box arriving on a drum hit, then the ring, and only made the art once it felt right.
+
+      Timing was the core problem. Each enemy is given the beat it has to be hit on and works backward: it spawns three beats early out of its key’s wedge, and its position comes from the song’s clock, not the frame count. A press within 45 ms is Perfect, up to 140 ms is Good, and the rings around Orpheus are drawn exactly as thick as those windows.
+  - type: grid
+    minColumnWidth: 520px
+    aspect: 4/3
+    fit: cover
+    items:
+      - type: image
+        src: /media/song-of-orpheus/orpheus-title.jpg
+        alt: 'Song of Orpheus: Title screen'
+        width: 2002
+        height: 1600
+        caption: Title screen
+      - type: image
+        src: /media/song-of-orpheus/orpheus-perfect.jpg
+        alt: 'Song of Orpheus: A perfect hit'
+        width: 2210
+        height: 1770
+        caption: A perfect hit
+      - type: image
+        src: /media/song-of-orpheus/orpheus-sketch.jpg
+        alt: 'Song of Orpheus: The ring of six, sketched'
+        width: 2400
+        height: 2115
+        caption: 'The ring of six, sketched'
+      - type: image
+        src: /media/song-of-orpheus/orpheus-end.jpg
+        alt: 'Song of Orpheus: Journey Complete'
+        width: 2210
+        height: 1770
+        caption: Journey Complete
+---
+

@@ -5,17 +5,16 @@
 export type IndexEntry = {
   slug: string;
   title: string;
-  year: string;
+  term: string;
   discipline: string[];
   tags: string[];
   tools: string[];
   role: string;
-  aiLabel: string;
   tier: 1 | 2 | 3;
   foundational: boolean;
   thumb?: string;
-  thumbLabel: string;
-  body: string; // plain text of the MDX body + searchText
+  thumbPos?: string;
+  body: string; // all written text + searchText
 };
 
 export type SearchHit = {
@@ -35,7 +34,7 @@ type Field = keyof typeof FIELD_WEIGHT;
 const STOP = new Set(
   `a an and are as at be but by can for from has have i in into is it its of on or our that the their them this to we with you your will work
   working experience team strong ability skills knowledge looking intern internship role junior senior years year plus able using use used
-  etc including such other who what how about all any more new well across help ensure must should would also like responsibilities requirements
+  etc including such other who what how about all any more new well across help ensure must should would also like responsibilities requirements artist artists creative build building write
   preferred qualifications candidate job position company studio within both one two own make made out up get set based level`
     .split(/\s+/)
     .filter(Boolean),
@@ -112,10 +111,14 @@ export function searchIndex(
   for (const f of fields) for (const set of Object.values(f)) for (const k of set) vocab.add(k);
   const qKeys = [...keysOf(query, syn)].filter((k) => vocab.has(k));
   // A synonym key already covers its plain token, so don't double count.
+  // Stems read badly in "why it matched", so remember the words as typed.
+  const asTyped = new Map<string, string>();
+  for (const w of normalize(query).split(/[\s-]+/)) if (w) asTyped.set(stem(w), w);
   const effective = qKeys.filter((k) => k.startsWith("=") || !qKeys.includes(`=${syn.get(k) ?? ""}`));
   if (!effective.length) return [];
 
-  const maxPossible = effective.length * FIELD_WEIGHT.title;
+  // Five strong matches count as a perfect fit, so a long pasted posting can still score high.
+  const maxPossible = Math.min(effective.length, 5) * FIELD_WEIGHT.title;
 
   // Display labels for "why it matched": tags/tools/discipline whose keys hit.
   const labelFor = (e: IndexEntry, k: string) =>
@@ -126,7 +129,7 @@ export function searchIndex(
     let raw = 0;
     const labels = new Set<string>();
     const bodyWords: string[] = [];
-    let titleHit = false;
+    const titleWords: string[] = [];
     for (const k of effective) {
       let best = 0;
       let bestField: Field | null = null;
@@ -140,20 +143,21 @@ export function searchIndex(
       raw += best;
       const label = labelFor(entry, k);
       if (label) labels.add(label);
-      else if (bestField === "title") titleHit = true;
-      else if (bestField === "body" || bestField === "role") bodyWords.push(k.replace(/^=/, ""));
+      else if (bestField === "title") titleWords.push(k);
+      else if (bestField === "body" || bestField === "role") bodyWords.push(k);
     }
     if (raw === 0) return;
     const score = Math.min(1, raw / maxPossible) * TIER_WEIGHT[entry.tier];
-    const parts: string[] = [];
-    if (labels.size) parts.push(`Matched: ${[...labels].slice(0, 5).join(", ")}`);
-    if (titleHit) parts.push("title");
-    if (bodyWords.length) parts.push(`${labels.size ? "also" : "Matched"} in write-up: ${bodyWords.slice(0, 4).join(", ")}`);
+    // Only names what actually matched: tags, tools and disciplines, then title words, then words in the text.
+    const typed = (k: string) => asTyped.get(k.replace(/^=/, "")) ?? k.replace(/^=/, "");
+    const words = bodyWords.map(typed);
+    const parts = [...[...labels].slice(0, 5), ...titleWords.map(typed)];
+    if (words.length) parts.push(`in the write-up: ${words.slice(0, 4).join(", ")}`);
     hits.push({
       entry,
       score,
       pct: Math.max(1, Math.round(score * 100)),
-      why: parts.join(" · "),
+      why: parts.join(", "),
       matchedTerms: [...labels],
     });
   });

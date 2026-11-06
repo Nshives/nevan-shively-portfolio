@@ -1,0 +1,69 @@
+---
+slug: self-portrait
+title: Self Portrait
+term: Summer 2026
+date: 2026-07
+foundational: false
+featured: false
+group: code
+archiveOrder: 14
+meta: Processing · image processing
+thumbPos: center 30%
+role: Solo
+tools:
+  - Processing (Java)
+  - Photoshop
+discipline:
+  - Programming
+tags:
+  - code
+  - programming
+  - image processing
+aiLabel: AI-assisted
+description: 'The assignment was an abstract self-portrait made from shapes. Positioning shapes by hand in Processing annoyed me, so I wrote a sketch that turns a photo into shapes instead.'
+hero:
+  type: image
+  src: /media/self-portrait/sp-final.jpg
+  alt: Self Portrait
+  width: 960
+  height: 960
+  aspect: 16/9
+  fit: contain
+blocks:
+  - type: text
+    heading: Process
+    text: |-
+      I started from a set of dramatically lit portraits of myself. The sketch samples the color of each cell in a grid over the photo, then draws a box of that color at that spot, in a shuffled order and at random sizes. A second pass adds cross-hatching whose density follows each spot’s brightness. Last, I drew hand-placed lines on top with Processing shapes, finding their coordinates in Photoshop.
+
+      I typed all the code and planned almost all the logic. AI helped me debug and gave me a few pieces: the shuffle, the mask that limits the hatching, and the brightness formula. The hatching didn’t give quite the effect I wanted, but I understand every line of it.
+  - type: grid
+    minColumnWidth: 420px
+    aspect: 4/3
+    fit: contain
+    items:
+      - type: image
+        src: /media/self-portrait/sp-photo.jpg
+        alt: 'Self Portrait: One of the input photos'
+        width: 534
+        height: 800
+        caption: One of the input photos
+      - type: image
+        src: /media/self-portrait/sp-sketch.jpg
+        alt: 'Self Portrait: Early sketch ideas'
+        width: 1734
+        height: 696
+        caption: Early sketch ideas
+      - type: image
+        src: /media/self-portrait/sp-lines.jpg
+        alt: 'Self Portrait: Planning the drawn lines'
+        width: 973
+        height: 976
+        caption: Planning the drawn lines
+      - type: image
+        src: /media/self-portrait/sp-code.jpg
+        alt: 'Self Portrait: Part of the code'
+        width: 1170
+        height: 514
+        caption: Part of the code
+---
+

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { frontmatterSchema, type Project } from "./schema";
+import { frontmatterSchema, termRank, type Project } from "./schema";
 
 export const PROJECTS_DIR = path.join(process.cwd(), "content", "projects");
 
@@ -32,15 +32,25 @@ export function loadProjects(): Project[] {
       errors.push(`  content/projects/${file}\n    slug: "${parsed.data.slug}" must match the file name`);
       continue;
     }
-    projects.push({ ...parsed.data, year: Number(parsed.data.date.slice(0, 4)), body: content.trim(), file });
+    if (content.trim()) {
+      errors.push(`  content/projects/${file}\n    body: all text goes in description or a text block, not below the frontmatter`);
+      continue;
+    }
+    projects.push({ ...parsed.data, file });
   }
 
   if (errors.length) {
     throw new Error(`Invalid project content:\n${errors.join("\n")}`);
   }
 
-  // Newest first. "2026" (month unknown) sorts after "2026-12".
-  projects.sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title));
+  // Newest term first; inside a term, newest date, then the archive order.
+  projects.sort(
+    (a, b) =>
+      termRank(a.term) - termRank(b.term) ||
+      b.date.localeCompare(a.date) ||
+      (a.archiveOrder ?? 0) - (b.archiveOrder ?? 0) ||
+      a.title.localeCompare(b.title),
+  );
   cache = projects;
   return projects;
 }
@@ -55,43 +65,19 @@ export function getFeatured() {
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
-// Up to n projects sharing the most tags/disciplines/tools with this one.
+// Same group first, then anything else.
 export function getRelated(project: Project, n = 3) {
-  const terms = new Set([...project.tags, ...project.discipline, ...project.tools].map((t) => t.toLowerCase()));
-  return loadProjects()
-    .filter((p) => p.slug !== project.slug)
-    .map((p) => ({
-      p,
-      score:
-        [...p.tags, ...p.discipline, ...p.tools].filter((t) => terms.has(t.toLowerCase())).length +
-        (p.foundational ? 0 : 0.5) +
-        (4 - p.tier) * 0.1,
-    }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, n)
-    .map(({ p }) => p);
+  const others = loadProjects().filter((p) => p.slug !== project.slug);
+  return [...others.filter((p) => p.group === project.group), ...others.filter((p) => p.group !== project.group)].slice(0, n);
 }
 
-// Splits the MDX body into the intro (before the first ##) and named sections.
-export function splitSections(body: string) {
-  const parts = body.split(/^##\s+/m);
-  const intro = parts.shift()?.trim() ?? "";
-  const sections = parts.map((chunk) => {
-    const nl = chunk.indexOf("\n");
-    const heading = (nl === -1 ? chunk : chunk.slice(0, nl)).trim();
-    const content = nl === -1 ? "" : chunk.slice(nl + 1).trim();
-    return { heading, key: heading.toLowerCase().replace(/[’']/g, "'"), content };
-  });
-  return { intro, sections: sections.filter((s) => s.content) };
-}
-
-// Plain text of the body for the search index.
-export function plainText(md: string) {
-  return md
-    .replace(/<[^>]+>/g, " ")
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/[#*_>`~]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+// All written text on a project, for the search index.
+export function searchableText(p: Project) {
+  const parts = [p.description ?? "", p.searchText];
+  for (const b of p.blocks) {
+    if (b.type === "text" || b.type === "subheading") parts.push(b.text);
+    if (b.type === "image" || b.type === "video" || b.type === "vimeo") parts.push(b.caption ?? "");
+    if (b.type === "grid") parts.push(...b.items.map((i) => i.caption ?? ""));
+  }
+  return parts.filter((t) => t && !/^\[.*\]$/.test(t.trim())).join(" ");
 }

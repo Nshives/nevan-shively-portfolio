@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FOUNDATIONAL_CAP, FOUNDATIONAL_THRESHOLD, searchIndex, type IndexEntry, type SearchHit } from "@/lib/search";
 import { searchChips, searchSynonyms } from "@/config/site";
+import { Thumb } from "./Media";
 
 // Search panel + inline results. The query (and the foundational checkbox) are
 // mirrored in the URL as /?q=…&all=1 so results can be shared.
@@ -95,7 +95,7 @@ export function Search({ index }: { index: IndexEntry[] }) {
                     run(query);
                   }
                 }}
-                placeholder="e.g. Houdini · real-time FX · a game with a story · or paste a job posting"
+                placeholder="e.g. Maya · Nuke · a game with a story · or paste a job posting"
                 className="w-full text-[18px] leading-[1.4] text-text bg-ground border border-line-input px-[18px] py-4 resize-y placeholder:text-[#5F7596] focus:border-blue"
               />
             </label>
@@ -131,7 +131,7 @@ export function Search({ index }: { index: IndexEntry[] }) {
               className="w-[22px] h-[22px] m-0 cursor-pointer accent-blue"
             />
             <label htmlFor="found" className="text-[16px] text-nav cursor-pointer">
-              Include all foundational or beginner-level work.
+              Include all foundational or beginner-level work
             </label>
           </div>
         </form>
@@ -175,8 +175,8 @@ export function Search({ index }: { index: IndexEntry[] }) {
                   <div className="grid gap-6 mt-7" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))" }}>
                     {foundShown.map((h) => (
                       <Link key={h.entry.slug} href={`/work/${h.entry.slug}`} className="row flex flex-col gap-3 pb-2">
-                        <Thumb entry={h.entry} sizes="(max-width: 700px) 100vw, 300px" />
-                        <span className="mono text-[11px] text-muted">{[h.entry.year, ...h.entry.discipline.slice(0, 2)].join(" · ")}</span>
+                        <Thumb src={h.entry.thumb} position={h.entry.thumbPos} aspect="16/10" sizes="(max-width: 700px) 100vw, 300px" label="[ still ]" />
+                        <span className="mono text-[11px] text-muted">{metaOf(h.entry)}</span>
                         <h3 className="m-0 text-[19px] font-bold">{h.entry.title}</h3>
                       </Link>
                     ))}
@@ -191,40 +191,21 @@ export function Search({ index }: { index: IndexEntry[] }) {
   );
 }
 
-function Thumb({ entry, sizes, className = "", style }: { entry: IndexEntry; sizes: string; className?: string; style?: React.CSSProperties }) {
-  return (
-    <div className={`ph ${className}`} style={{ aspectRatio: "16/10", ...style }}>
-      {entry.thumb ? (
-        <Image src={entry.thumb} alt="" fill sizes={sizes} className="object-cover" />
-      ) : (
-        <span className="mono text-[10px] px-3">[ {entry.thumbLabel} ]</span>
-      )}
-    </div>
-  );
-}
+const metaOf = (e: IndexEntry) => [e.term, ...e.tools.slice(0, 2)].join(" · ");
 
 function ResultRow({ hit, rank }: { hit: SearchHit; rank: number }) {
   const e = hit.entry;
   return (
     <Link href={`/work/${e.slug}`} className="row flex flex-wrap gap-x-8 gap-y-5 items-center py-7 border-b border-line">
       <span className="disp text-[44px] text-[#2A4A78] w-[72px]">{String(rank).padStart(2, "0")}</span>
-      <Thumb entry={e} sizes="220px" className="flex-none" style={{ width: "min(100%, 220px)" }} />
+      <Thumb src={e.thumb} position={e.thumbPos} aspect="16/10" sizes="220px" label="[ still ]" className="flex-none" style={{ width: "min(100%, 220px)" }} />
       <div className="flex-[1_1_420px] min-w-0 flex flex-col gap-2.5">
-        <span className="mono text-[11px] text-muted">{[e.year, e.discipline[0], e.aiLabel].filter(Boolean).join(" · ")}</span>
+        <span className="mono text-[11px] text-muted">{metaOf(e)}</span>
         <h3 className="disp m-0 text-[28px]">{e.title}</h3>
         <p className="m-0 text-text-3 text-[16px] leading-normal">
-          <span className="mono text-[11px] text-blue-text">Why it matched&nbsp;&nbsp;</span>
+          <span className="mono text-[11px] text-blue-text">Matched&nbsp;&nbsp;</span>
           {hit.why}
         </p>
-        {e.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-1">
-            {e.tags.slice(0, 5).map((t) => (
-              <span key={t} className={`tag ${hit.matchedTerms.includes(t) ? "!text-white !border-blue" : ""}`}>
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
       <div className="w-[120px] flex flex-col gap-2">
         <span className="mono text-[11px] text-nav">Match {hit.pct}%</span>

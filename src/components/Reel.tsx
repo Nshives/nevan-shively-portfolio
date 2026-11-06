@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Corners } from "./Media";
 import { site } from "@/config/site";
 
-type Props = { src?: string; webm?: string; poster?: string; hudFile: string };
+type Props = { src?: string; poster?: string; silent?: boolean; hudFile: string };
 
 const FPS = 24;
 function timecode(t: number) {
@@ -16,7 +16,7 @@ function timecode(t: number) {
 
 // Home reel in a viewfinder frame. Autoplays muted; the button toggles sound.
 // Viewers who prefer reduced motion get the poster and a play button instead.
-export function Reel({ src, webm, poster, hudFile }: Props) {
+export function Reel({ src, poster, silent, hudFile }: Props) {
   const ref = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
@@ -65,7 +65,6 @@ export function Reel({ src, webm, poster, hudFile }: Props) {
           onPause={() => setPlaying(false)}
           aria-label="Reel"
         >
-          {webm && <source src={webm} type="video/webm" />}
           <source src={src} type="video/mp4" />
         </video>
       ) : (
@@ -88,9 +87,11 @@ export function Reel({ src, webm, poster, hudFile }: Props) {
             <button type="button" className="chip bg-ground/60 min-h-[40px]" onClick={togglePlay} aria-label={playing ? "Pause reel" : "Play reel"}>
               {playing ? "Pause" : "Play"}
             </button>
-            <button type="button" className="chip bg-ground/60 min-h-[40px]" onClick={toggleSound} aria-pressed={!muted}>
-              {muted ? "Sound on" : "Mute"}
-            </button>
+            {!silent && (
+              <button type="button" className="chip bg-ground/60 min-h-[40px]" onClick={toggleSound} aria-pressed={!muted}>
+                {muted ? "Sound on" : "Mute"}
+              </button>
+            )}
           </span>
         )}
       </div>

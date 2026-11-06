@@ -1,23 +1,26 @@
 import Link from "next/link";
 import type { Project } from "@/lib/schema";
-import { Media } from "./Media";
+import { Thumb } from "./Media";
 
-export function thumbLabel(p: Project) {
-  return p.thumbLabel ?? (p.hero?.type === "placeholder" ? p.hero.label : p.title);
-}
-
-// Poster image for a card: explicit thumb, else the hero's poster/image.
-export function thumbSrc(p: Project) {
+// A project's picture for cards and search: explicit thumb, else the hero,
+// else the first image or video in its blocks.
+export function thumbSrc(p: Project): string | undefined {
   if (p.thumb) return p.thumb;
-  if (p.hero?.type === "image") return p.hero.src;
-  if (p.hero?.type === "video") return p.hero.poster;
+  const h = p.hero;
+  if (h?.type === "image") return h.src;
+  if (h?.type === "video" || h?.type === "vimeo") return h.poster;
+  for (const b of p.blocks) {
+    if (b.type === "grid") return b.items[0].src;
+    if (b.type === "image") return b.src;
+    if (b.type === "video" || b.type === "vimeo") return b.poster;
+  }
   return undefined;
 }
 
 export function ProjectCard({ p, aspect = "16/10", titleSize = 20, sizes = "(max-width: 700px) 100vw, 400px" }: { p: Project; aspect?: string; titleSize?: number; sizes?: string }) {
   return (
     <Link href={`/work/${p.slug}`} className="card flex flex-col gap-3.5">
-      <Media src={thumbSrc(p)} alt="" label={thumbLabel(p)} aspect={aspect} sizes={sizes} />
+      <Thumb src={thumbSrc(p)} position={p.thumbPos} aspect={aspect} sizes={sizes} label="[ still ]" />
       <h3 className="disp m-0" style={{ fontSize: titleSize }}>
         {p.title}
       </h3>

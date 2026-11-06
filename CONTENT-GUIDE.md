@@ -5,71 +5,72 @@ How projects are stored, how to add one, and the rules every word on the site fo
 ## Add a project (the short version)
 
 ```bash
-npm run new-project -- coffee-maker "Custom Coffee Maker"   # creates content/projects/coffee-maker.mdx + public/media/coffee-maker/
-npm run media -- coffee-maker ~/path/to/exports              # optimizes images/clips into public/media/coffee-maker/
-# edit content/projects/coffee-maker.mdx: frontmatter + write-up, point hero/thumb/gallery at the files the media script printed
-npm run content:check                                        # validates everything, lists open [TODOS]
-npm run dev                                                  # look at it on http://localhost:3000
+npm run new-project -- my-project "My Project"   # creates content/projects/my-project.mdx + public/media/my-project/
+npm run media -- my-project ~/path/to/exports    # optimizes images/clips into public/media/my-project/
+# edit content/projects/my-project.mdx: fill in the fields and blocks, pointing at the files the media script printed
+npm run content:check                            # validates everything, lists open [todos]
+npm run dev                                      # look at it on http://localhost:3000
 ```
 
-That's it. The archive, search index, featured strip and related cards all pick it up automatically.
+The archive, search index, featured strip and related cards all pick it up automatically.
 
-When the real work is in, remove the fake projects:
-
-```bash
-npm run placeholders              # list them
-npm run placeholders -- --remove  # delete them and their media folders
-```
+The first 38 projects were generated from the approved export, `../Claude Work/projects.json`, by `scripts/import-projects.mjs`. Running its `mdx` command again overwrites `content/projects/`, so once you've edited files by hand, edit them directly from then on. `scripts/verify-import.ts` confirms the generated text still matches the export word for word.
 
 ## Media
 
-- Originals stay in `../Works/` (outside the repo). Only optimized web versions go in `public/media/<slug>/`.
+- Originals stay in `../Works/` (outside the repo, never modified). Only optimized web versions go in `public/media/<slug>/`.
 - `npm run media -- <slug> <files or folders>`:
   - images → `<name>.jpg`, max 2400 px wide. `next/image` makes the AVIF/WebP sizes.
-  - videos → `<name>.mp4` + `<name>.webm` (muted, ≤1920 px) + `<name>.jpg` poster. Add `--audio` to keep sound.
-  - Flatten PSDs to PNG first. It warns on anything over 20 MB.
-- Short loops (under ~30 s) are self-hosted. The reel and anything long goes on **Vimeo**, embedded with `{ type: "vimeo", id: "123456789", title: "…" }`.
+  - videos → `<name>.mp4` (1080p H.264, up to 4 Mbps, faststart, under ~40 MB, sound kept) + `<name>.jpg` poster. Add `--mute` to drop sound. Pieces too long to stay under 40 MB at a good bitrate drop to 720p.
+  - Flatten PSDs to PNG first.
+- Long pieces are better on **Vimeo** once uploaded: swap the block for `{ type: "vimeo", id: "123456789", title: "…", poster: "/media/slug/x.jpg" }`.
 - `.psd`, `.mov`, `.step`, `.blend` and friends are in `.gitignore`, so originals can't be committed by accident.
 
-## Frontmatter
+## Project file
 
-File: `content/projects/<slug>.mdx`. The build **fails** if any field is wrong, and `npm run content:check` tells you which file and field.
+File: `content/projects/<slug>.mdx`. Everything is frontmatter; nothing goes below it. The build **fails** if any field is wrong, and `npm run content:check` tells you which file and field.
 
 | Field | Required | Notes |
 |---|---|---|
 | `slug` | yes | lowercase-with-dashes, must equal the file name |
 | `title` | yes | |
-| `date` | yes | `"2026-08"`, or `"2026"` if the month is unknown. Drives archive order and grouping |
-| `tier` | yes | `1` featured case study · `2` selected · `3` brief. Search weight 1.0 / 0.85 / 0.7 |
-| `foundational` | | `true` for foundations classes, beginner exercises, pre-SCAD work. Shown in search only in the "Foundations and earlier work" panel |
+| `term` | yes | shown as When, and the archive group: `Fall 2026`, `Before SCAD`, or `[date]` until known (grouped under "Date to confirm") |
+| `date` | yes | `2026-10`, `2025`, or `[DATE]`. Sorts inside a term |
+| `group` | yes | `3d`, `comp`, `code`, `film`, `motion`, `design`, `drawing`, `color`. Related cards show the same group first |
+| `foundational` | | `true` for foundations classes, beginner exercises, pre-SCAD work. Gets a badge, and search shows it only in the "Foundations and earlier work" panel |
 | `featured` + `order` | | `featured: true` puts it in the home strip, sorted by `order` |
 | `inProgress` | | shows an "In progress" badge |
-| `type` | yes | `personal` · `class` · `freelance` |
+| `role` | | team projects state the actual role. Empty fields are hidden |
+| `tools` | | `[Nuke, "[editor]"]`. A `[bracketed]` value renders as a todo |
+| `aiLabel` | | `Built solo` · `AI-assisted` · `AI-accelerated`. Leave it out until known (see below) |
+| `description` | | one paragraph under the title |
+| `hero` | | media (below). Images also need `aspect` and `fit` |
+| `blocks` | | the page body, rendered in exactly the order written |
+| `meta` | | archive row's mono line. Defaults to the tools |
+| `archiveOrder` | | position inside a term in the archive |
+| `thumb`, `thumbPos` | | card picture and CSS crop like `center 35%`. Defaults to the hero, then the first image or video in the blocks |
+| `discipline`, `tags`, `searchText` | | extra search words, never shown |
 | `course` | | internal only, never shown |
-| `role` | yes | e.g. `Solo`, `Lead programmer`. Team projects state the actual role |
-| `team` | | `[{ name, role }]` |
-| `tools` | | `["Houdini", "Nuke"]`. Use `"[TOOLS]"` until known |
-| `discipline` | yes | `["VFX", "Compositing"]`. First one shows in result meta |
-| `tags` | | search keywords. Tags and tools weigh the most in search |
-| `aiLabel` | yes | `Built solo` · `AI-assisted` · `AI-accelerated` · `[ASK NEVAN]` (see below) |
-| `hero` | | media (below). Top of the project page, 16:8 |
-| `thumb` | | `/media/<slug>/thumb.jpg`. Falls back to the hero image or video poster |
-| `thumbLabel` | | text in the hatched frame while there's no thumb |
-| `gallery` | | list of media, 2-up 4:3 grid |
-| `final` | | one media item after the gallery, 16:9 |
-| `searchText` | | extra words for search only, never shown |
-| `placeholder` | | `true` only on the fake seed projects |
 
-**Media** is one of:
+### Blocks
 
 ```yaml
-{ type: "image", src: "/media/slug/still.jpg", alt: "What's in the image" }
-{ type: "video", src: "/media/slug/loop.mp4", webm: "/media/slug/loop.webm", poster: "/media/slug/loop.jpg" }
-{ type: "vimeo", id: "123456789", title: "Full film" }     # private links: "123456789/abcdef1234"
-{ type: "placeholder", label: "[hero clip]" }              # hatched frame until the media exists
+blocks:
+  - { type: text, heading: Process, text: "Paragraph.\n\nSecond paragraph." }
+  - { type: subheading, text: "Separates pieces on one page" }
+  - { type: video, src: /media/slug/x.mp4, poster: /media/slug/x.jpg, caption: "Optional" }
+  - { type: vimeo, id: "123456789", title: "Full film", poster: /media/slug/x.jpg }
+  - { type: image, src: /media/slug/x.jpg, alt: "What's in it", width: 1920, height: 1080, caption: "Optional" }  # full width, uncropped
+  - type: grid
+    minColumnWidth: 520px
+    aspect: 4/3
+    fit: contain        # or cover
+    items:
+      - { type: image, src: /media/slug/y.jpg, alt: "…", width: 1600, height: 1200, caption: "Mono caption" }
+  - { type: placeholder, label: "[ what goes here ]" }   # dashed todo box
 ```
 
-Any of them can take `caption: "…"`.
+The only written sections are the **description** and **Process**. A paragraph written entirely in `[brackets]` renders as a dashed todo box, so known gaps stay visible, and `content:check` lists them.
 
 ### AI build labels
 
@@ -79,26 +80,12 @@ One honest label per project:
 - **AI-assisted**: AI as tutor or debugger. The architecture is his.
 - **AI-accelerated**: significant generation, directed and understood by him.
 
-If unknown, use `[ASK NEVAN]`. Never guess.
-
-## Body
-
-Markdown under the frontmatter. Text before the first `##` is the intro (1–2 sentences). Then:
-
-```md
-## The hard part      ← the most important section: what broke and how it got fixed
-## Process            ← short, including one thing that failed
-## What I'd do differently
-```
-
-- Sections only render if they have content. Leave them out freely: a tier-3 project can be one sentence.
-- Any other `## Heading` renders after Process, in the order written. The long case study is a ceiling for tier-1 work, not a requirement.
-- A paragraph written entirely in `[brackets]` renders as a dashed "todo" box, so unfinished bits stay visible and searchable via `npm run content:check`. Bracketed prompts are left out of the search index.
+If unknown, leave the field out and ask Nevan. Never guess.
 
 ## Rules for every word on the site
 
 1. **Let the work speak.** No manifestos, taglines or life-story arcs.
-2. **Defensible.** Nothing Nevan couldn't defend for two minutes to someone in the field. Never invent facts, numbers, dates, tools, team sizes or outcomes. Unknown → visible placeholder like `[TOOLS]`.
+2. **Defensible.** Nothing Nevan couldn't defend for two minutes to someone in the field. Never invent facts, numbers, dates, tools, team sizes or outcomes. Unknown → visible placeholder like `[medium]`.
 3. **Mark inferences.** A sentence inferred from files rather than told by Nevan gets `[UNVERIFIED]`. He confirms it or it's cut. `content:check` counts them.
 4. **Team projects state Nevan's actual role.**
 5. **One honest AI label** (above).
@@ -110,11 +97,11 @@ Markdown under the frontmatter. Text before the first `##` is the intro (1–2 s
 | What | Where |
 |---|---|
 | Email, GitHub, résumé, social links | `src/config/site.ts` → `links` (empty = shows a `[PLACEHOLDER]`) |
-| Reel video | `src/config/site.ts` → `reel` (empty = first featured project with a video hero) |
+| Reel video | `src/config/site.ts` → `reel` (empty = first featured project with a video, as a silent loop) |
 | Suggested search chips | `src/config/site.ts` → `searchChips` |
 | Search synonyms (UE5 = Unreal …) | `src/config/site.ts` → `searchSynonyms` |
 | Portrait | `src/app/about/page.tsx` → `portrait` |
-| Logo | `src/components/Logo.tsx` |
+| Logo | `public/logo-mark-nav.svg`, favicon `src/app/icon.svg` |
 | Colors and type | `src/app/globals.css` (`@theme` tokens) |
 | Fonts (Encamp swap) | `src/app/layout.tsx` |
 | Search scoring | `src/lib/search.ts` |

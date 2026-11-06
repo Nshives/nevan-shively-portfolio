@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { site, links } from "@/config/site";
-import { Media } from "@/components/Media";
+import { Thumb } from "@/components/Media";
 import { SocialLinks } from "@/components/SocialLinks";
 
 export const metadata: Metadata = { title: "About" };
@@ -11,15 +11,7 @@ const portrait: string | undefined = undefined;
 export default function AboutPage() {
   return (
     <section className="wrap pt-[72px] flex flex-wrap gap-x-[72px] gap-y-12 items-start">
-      <Media
-        src={portrait}
-        alt="Portrait of Nevan Shively"
-        label="portrait"
-        aspect="4/5"
-        sizes="(max-width: 700px) 100vw, 440px"
-        priority
-        className="flex-[1_1_320px] max-w-[440px]"
-      />
+      <Thumb src={portrait} aspect="4/5" sizes="(max-width: 700px) 100vw, 440px" label="[ portrait ]" className="flex-[1_1_320px] max-w-[440px]" />
       <div className="flex-[999_1_520px] min-w-0 max-w-[720px] flex flex-col gap-[26px]">
         <div className="flex flex-col gap-3">
           <h1 className="disp m-0 text-white shadow-offset" style={{ fontSize: "clamp(40px,5vw,72px)" }}>
