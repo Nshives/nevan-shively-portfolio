@@ -97,7 +97,7 @@ If unknown, leave the field out and ask Nevan. Never guess.
 | What | Where |
 |---|---|
 | Email, GitHub, résumé, social links | `src/config/site.ts` → `links` (empty = shows a `[PLACEHOLDER]`) |
-| Reel video | `src/config/site.ts` → `reel` (empty = first featured project with a video, as a silent loop) |
+| Reel video | `src/config/site.ts` → `reel`. To replace it: `npm run media -- reel <file> --max-mb=75`, keeping the same name or updating `reel` |
 | Suggested search chips | `src/config/site.ts` → `searchChips` |
 | Search synonyms (UE5 = Unreal …) | `src/config/site.ts` → `searchSynonyms` |
 | Portrait | `public/media/about/portrait.jpg` |

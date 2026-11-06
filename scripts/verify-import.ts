@@ -9,6 +9,9 @@ let bad = 0;
 const fail = (slug: string, what: string) => { bad++; console.log(`✗ ${slug}: ${what}`); };
 const files = (b: any): string[] => b.type === "grid" ? b.items.map((i: any) => i.src) : [b.src, b.poster].filter(Boolean);
 
+// Confirmed by Nevan after the export (same as import-projects.mjs).
+Object.assign(projects.find((p: any) => p.slug === "auction-video"), { term: "Before SCAD", date: "2024-12", foundational: true });
+
 for (const p of projects) {
   const { data: d } = matter(fs.readFileSync(path.join(ROOT, "content", "projects", `${p.slug}.mdx`), "utf8"));
   for (const k of ["title", "term", "date", "role", "description", "foundational", "featured", "group"]) if (d[k] !== p[k]) fail(p.slug, `${k}: ${d[k]} ≠ ${p[k]}`);

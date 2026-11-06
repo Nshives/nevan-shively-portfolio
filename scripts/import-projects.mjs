@@ -25,6 +25,8 @@ const { projects } = JSON.parse(fs.readFileSync(path.join(WORK, "projects.json")
 // Handoff §5: the auction video gets compressed and a real hero.
 const auction = projects.find((p) => p.slug === "auction-video");
 auction.hero = { type: "video", key: "auction", source: "AuctionVideo/Auction Video Draft 3 copy.mp4" };
+// Nevan, 5 Nov 2026: made December 2024, before SCAD. Pre-SCAD work counts as foundational.
+Object.assign(auction, { term: "Before SCAD", date: "2024-12", foundational: true });
 
 // Files renamed since the export.
 const RENAMED = { "Aliens VFX/Draft 6.mp4": "Aliens VFX/Draft 6 Video Compression.mp4" };

@@ -21,11 +21,11 @@ export const links: Record<"email" | "linkedin" | "github" | "instagram" | "yout
   resume: { label: "Résumé", href: "/files/nevan-shively-resume.pdf", placeholder: "[RÉSUMÉ PDF]" },
 };
 
-// Home reel. Leave src empty until the reel is cut: the home page then plays the
-// first featured project with a video as a silent loop.
+// Home reel. It autoplays muted with a sound button. If src is ever empty, the home
+// page plays the first featured project with a video as a silent loop instead.
 export const reel = {
-  src: "", // e.g. "/media/reel/reel.mp4"
-  poster: "", // e.g. "/media/reel/reel.jpg"
+  src: "/media/reel/portreel.mp4",
+  poster: "/media/reel/portreel.jpg",
   hudFile: "NSV_REEL_2026.MOV",
 };
 

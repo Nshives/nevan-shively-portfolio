@@ -6,7 +6,8 @@
 // Images (jpg/png/tif/webp; flatten PSDs to PNG first) → <name>.jpg at max 2400px
 //   wide. next/image serves resized AVIF/WebP from it automatically.
 // Videos (mov/mp4/mkv/webm) → <name>.mp4 (1080p H.264, up to 4 Mbps, under ~40 MB,
-//   keeps sound) and a <name>.jpg poster. Add --mute to drop the sound.
+//   keeps sound) and a <name>.jpg poster. Add --mute to drop the sound, or
+//   --max-mb=75 to let something important stay 1080p past the usual limit.
 //
 // Originals are never modified. Needs ffmpeg on PATH for video.
 import fs from "node:fs";
@@ -19,6 +20,7 @@ const VID = new Set([".mov", ".mp4", ".m4v", ".mkv", ".webm"]);
 
 const args = process.argv.slice(2);
 const mute = args.includes("--mute");
+const maxMB = Number(args.find((a) => a.startsWith("--max-mb="))?.split("=")[1]) || undefined;
 const [slug, ...inputs] = args.filter((a) => !a.startsWith("--"));
 if (!slug || !inputs.length) {
   console.error("Usage: npm run media -- <slug> <file or folder> [more…] [--mute]");
@@ -38,7 +40,7 @@ for (const f of files) {
     await optimizeImage(f, `${base}.jpg`);
     report(`${base}.jpg`);
   } else if (VID.has(ext)) {
-    encodeVideo(f, `${base}.mp4`, { audio: !mute });
+    encodeVideo(f, `${base}.mp4`, { audio: !mute, ...(maxMB ? { maxMB } : {}) });
     const frame = path.join(os.tmpdir(), `${name(f)}-poster.png`);
     grabFrame(f, probe(f).duration * 0.15, frame);
     await optimizeImage(frame, `${base}.jpg`);
